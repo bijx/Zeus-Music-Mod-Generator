@@ -262,9 +262,12 @@ public class Main implements ActionListener{
 	
 	public static void showProjectSettings() {
 		JTextField modName = new JTextField(projectName);
+		modName.setToolTipText("The name of the mod that will be visible on Steam, in the Arma 3 Launcher, and in game.");
         JTextField author = new JTextField(authorName);
+        author.setToolTipText("The author of this mod, can be any arbitrary name. Visible in Arma 3 Launcher.");
         JTextField logoField = new JTextField(logoPath);
         JCheckBox defaultLogoCheckbox = new JCheckBox("Use Default Logo");
+        defaultLogoCheckbox.setToolTipText("If this option is selected, the standard logo will be used instead of the one provided in 'Logo Path'.");
         defaultLogoCheckbox.setSelected(useDefaultLogo);
         logoField.setEditable(false);
         logoField.setToolTipText("To change logo path, go to File>Project Settings>Add Cover Image (.paa).");
@@ -273,7 +276,7 @@ public class Main implements ActionListener{
         panel.add(modName);
         panel.add(new JLabel("Author:"));
         panel.add(author);
-        panel.add(new JLabel("Logo Path"));
+        panel.add(new JLabel("Logo Path:"));
         panel.add(logoField);
         panel.add(defaultLogoCheckbox);
         
