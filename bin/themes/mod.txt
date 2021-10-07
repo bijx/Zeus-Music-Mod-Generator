@@ -1,0 +1,12 @@
+name = "{$modName}";
+picture = "logo.paa";
+description = "";
+logo = "logo.paa";
+logoOver = "logo.paa";
+tooltip = "{$modName}";
+tooltipOwned = "{$modName} Owned";
+overview = "{$modName}";
+author = "{$authorName}";
+overviewPicture = "logo.paa";
+overviewText = "{$modName}";
+overviewFootnote = "";

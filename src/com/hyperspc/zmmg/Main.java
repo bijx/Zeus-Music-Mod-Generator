@@ -17,6 +17,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 import javax.swing.JScrollPane;
@@ -309,7 +312,7 @@ public class Main implements ActionListener {
 
 			for (int i = 0; i < files.length; i++) {
 				Track newTrack = new Track(files[i].getAbsolutePath(),
-						files[i].getName().substring(0, files[i].getName().length() - 4), null, null, 0, 0);
+						files[i].getName().substring(0, files[i].getName().length() - 4), null, "", 0, 0);
 				trackList.add(newTrack);
 				trackNames.addElement(newTrack.getTrackName());
 			}
@@ -374,7 +377,7 @@ public class Main implements ActionListener {
 
 	public static void export(boolean useTags, boolean useDefaultLogo) throws IOException {
 		String projectNameRegex = projectName.replaceAll("\\W", "");
-		
+
 		// Create main folder
 		File mainDir = new File(projectNameRegex); // Remove whitespace or tabs from project name
 		if (!mainDir.exists()) {
@@ -382,6 +385,8 @@ public class Main implements ActionListener {
 		}
 
 		Theme theme = new Theme();
+
+		// Create config.cpp
 		Chunk chunk = theme.makeChunk("config", "txt");
 
 		chunk.set("modNameNoSpaces", projectNameRegex);
@@ -396,6 +401,40 @@ public class Main implements ActionListener {
 
 		out.flush();
 		out.close();
+
+		// Create mod.cpp
+		chunk = theme.makeChunk("mod", "txt");
+
+		chunk.set("modName", projectName);
+		chunk.set("authorName", authorName.trim());
+
+		outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
+		file = new File(outfilePath);
+		out = new FileWriter(file);
+
+		chunk.render(out);
+
+		out.flush();
+		out.close();
+
+		// Create track folder
+		File trackDir = new File(projectNameRegex + "/folderwithtracks");
+		if (!trackDir.exists()) {
+			trackDir.mkdirs();
+		}
+
+		for (int i = 0; i < trackList.size(); i++) {
+			try {
+				File source = new File(trackList.get(i).getPath());
+				String tag = (useTags) ? trackList.get(i).getTag() : ""; // If 'useTags' checkbox was ticked, use file tag.
+				tag = (tag.equals("")) ? "" : "["+tag+"]";
+				Files.copy(source.toPath(),
+						(new File(trackDir.getAbsolutePath() + "/" + tag + trackList.get(i).getTrackName() + ".ogg").toPath()),
+						StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 	}
 
