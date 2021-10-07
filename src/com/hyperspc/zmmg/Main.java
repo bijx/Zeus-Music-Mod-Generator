@@ -78,8 +78,21 @@ public class Main implements ActionListener{
 		frmZeusMusicMod.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmZeusMusicMod.getContentPane().setLayout(new BorderLayout(0, 0));
 		
+		frmZeusMusicMod.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		        if (JOptionPane.showConfirmDialog(frmZeusMusicMod, 
+		            "Are you sure you want to exit?", "Confirm Exit", 
+		            JOptionPane.OK_CANCEL_OPTION,
+		            JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION){
+		            System.exit(0);
+		        }else {
+		        	frmZeusMusicMod.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		        }
+		    }
+		});
+		
 		 try {
-	            // Set System L&F
 	        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	    }catch (Exception e) {
 			System.out.println("System look and feel not found.");
@@ -107,13 +120,15 @@ public class Main implements ActionListener{
 		mnNewMenu.add(exportButton);
 		
 		JMenuItem exitButton = new JMenuItem("Exit");
+		exitButton.addActionListener(this);
 		mnNewMenu.add(exitButton);
 		
 		JMenu mnNewMenu_1 = new JMenu("Tools");
 		menuBar.add(mnNewMenu_1);
 		
-		JMenuItem mntmNewMenuItem_3 = new JMenuItem("MP3 to OGG");
-		mnNewMenu_1.add(mntmNewMenuItem_3);
+		JMenuItem mp3OggConvertButton = new JMenuItem("MP3 to OGG");
+		mp3OggConvertButton.addActionListener(this);
+		mnNewMenu_1.add(mp3OggConvertButton);
 		
 		JMenu mnNewMenu_2 = new JMenu("Help");
 		menuBar.add(mnNewMenu_2);
@@ -157,6 +172,17 @@ public class Main implements ActionListener{
 			addCoverImage();
 		}else if(e.getActionCommand().equals("Remove Song")) {
 			removeSong();
+		}else if(e.getActionCommand().equals("MP3 to OGG")) {
+			JOptionPane.showMessageDialog(null,"This feature has not been implemented yet, I was just too lazy to remove the button.","Feature Unavailable",JOptionPane.WARNING_MESSAGE);
+		}else if(e.getActionCommand().equals("Exit")) {
+			int n = JOptionPane.showConfirmDialog(
+				    null,
+				    "Are you sure you want to exit?",
+				    "Confirm Exit",
+				    JOptionPane.OK_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+			if(n == JOptionPane.OK_OPTION) {
+				System.exit(0);
+			}
 		}
 	}
 	
