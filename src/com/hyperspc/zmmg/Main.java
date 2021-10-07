@@ -29,6 +29,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import java.awt.Toolkit;
 
 public class Main implements ActionListener{
 
@@ -73,6 +74,7 @@ public class Main implements ActionListener{
 	 */
 	private void initialize() {
 		frmZeusMusicMod = new JFrame();
+		frmZeusMusicMod.setIconImage(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/com/hyperspc/zmmg/zmmg.png")));
 		frmZeusMusicMod.setTitle("Zeus Music Mod Generator");
 		frmZeusMusicMod.setBounds(100, 100, 450, 500);
 		frmZeusMusicMod.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,6 +119,7 @@ public class Main implements ActionListener{
 		mnProjectSettings.add(addCoverImageButton);
 		
 		JMenuItem exportButton = new JMenuItem("Export...");
+		exportButton.addActionListener(this);
 		mnNewMenu.add(exportButton);
 		
 		JMenuItem exitButton = new JMenuItem("Exit");
@@ -128,7 +131,12 @@ public class Main implements ActionListener{
 		
 		JMenuItem mp3OggConvertButton = new JMenuItem("MP3 to OGG");
 		mp3OggConvertButton.addActionListener(this);
+		
+		JMenuItem songCountButton = new JMenuItem("Track Count");
+		songCountButton.addActionListener(this);
+		mnNewMenu_1.add(songCountButton);
 		mnNewMenu_1.add(mp3OggConvertButton);
+		
 		
 		JMenu mnNewMenu_2 = new JMenu("Help");
 		menuBar.add(mnNewMenu_2);
@@ -173,7 +181,7 @@ public class Main implements ActionListener{
 		}else if(e.getActionCommand().equals("Remove Song")) {
 			removeSong();
 		}else if(e.getActionCommand().equals("MP3 to OGG")) {
-			JOptionPane.showMessageDialog(null,"This feature has not been implemented yet, I was just too lazy to remove the button.","Feature Unavailable",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,"This feature will be implemented in a future update.","Feature Unavailable",JOptionPane.WARNING_MESSAGE);
 		}else if(e.getActionCommand().equals("Exit")) {
 			int n = JOptionPane.showConfirmDialog(
 				    null,
@@ -183,7 +191,32 @@ public class Main implements ActionListener{
 			if(n == JOptionPane.OK_OPTION) {
 				System.exit(0);
 			}
+		}else if(e.getActionCommand().equals("Track Count")) {
+			JOptionPane.showMessageDialog(null,"There are currently " + trackList.size() + " tracks loaded in the list.","Track Count",JOptionPane.INFORMATION_MESSAGE);
+		}else if(e.getActionCommand().equals("Export...")) {
+			exportDialog();
 		}
+	}
+	
+	public static void exportDialog() {
+		JCheckBox useTagsCheckbox = new JCheckBox("Append tags to track names");
+		useTagsCheckbox.setSelected(true);
+		JCheckBox defaultLogoCheckbox = new JCheckBox("Use default logo");
+        defaultLogoCheckbox.setToolTipText("If this option is selected, the standard logo will be used instead of the one provided in 'Logo Path'.");
+        defaultLogoCheckbox.setSelected(useDefaultLogo);
+        useTagsCheckbox.setToolTipText("If selected, tags will be exported in front of track names in game: [Tag] Track Name");
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Mod will be structured in a folder with the name " + projectName + " in the same directory as this program's executable."));
+        panel.add(useTagsCheckbox);
+        panel.add(defaultLogoCheckbox);
+        
+        Object[] options = {"Export",
+        "Cancel"};
+        int result = JOptionPane.showOptionDialog(null, panel, "Export Settings",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
+        if(result==0) {
+        	//export!
+        }
 	}
 	
 	Action displayAction = new AbstractAction()
