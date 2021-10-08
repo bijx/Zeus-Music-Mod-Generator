@@ -578,7 +578,7 @@ public class Main implements ActionListener {
 
 		// Copy image PAA to main folder
 		File logo = (useDefaultLogo) ? getResourceAsFile("logo.paa") : new File(logoPath);
-		if(logo.getPath().equals(""))
+		if (logo.getPath().equals(""))
 			logo = getResourceAsFile("logo.paa");
 		Files.copy(logo.toPath(), (new File(mainDir.getAbsolutePath() + "\\logo.paa")).toPath(),
 				StandardCopyOption.REPLACE_EXISTING);
@@ -611,7 +611,8 @@ public class Main implements ActionListener {
 
 		out.flush();
 		out.close();
-
+		JOptionPane.showMessageDialog(frmZeusMusicMod, "Export to " + projectNameRegex + " folder complete.",
+				"Export Successful", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
