@@ -1,3 +1,4 @@
+![](https://imgur.com/p6IC8hs.jpg)
 # Arma 3 Zeus Music Mod Generator
 
 A Java-based program that allows users to auto generate mod folder structure for custom Arma 3 music mods. Based on Scarlet Aquiline's [Custom music packs for Zeus module](https://steamcommunity.com/sharedfiles/filedetails/?id=1603895838) guide on Steam.
@@ -74,6 +75,7 @@ Finally, load the mod and start up Arma 3. Your music will be in the Zeus menu u
 ## Special Thanks
 - [tomj74's Chunk-Template Library](https://github.com/tomj74/chunk-templates)
 - [Rob Camick's ListAction class](https://tips4java.wordpress.com/2008/10/14/list-action/)
+- [Scarlet Aquiline's Custom music packs for Zeus module](https://steamcommunity.com/sharedfiles/filedetails/?id=1603895838)
 
 ## License
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
