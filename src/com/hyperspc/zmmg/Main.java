@@ -15,8 +15,10 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -150,6 +152,10 @@ public class Main implements ActionListener {
 		JMenuItem removeAllTracksButton = new JMenuItem("Remove all Tracks");
 		removeAllTracksButton.addActionListener(this);
 		mnNewMenu_1.add(removeAllTracksButton);
+
+		JMenuItem buildAddonButton = new JMenuItem("Build Addon...");
+		buildAddonButton.addActionListener(this);
+		mnNewMenu_1.add(buildAddonButton);
 		mnNewMenu_1.add(mp3OggConvertButton);
 
 		JMenu mnNewMenu_2 = new JMenu("Help");
@@ -209,8 +215,14 @@ public class Main implements ActionListener {
 		} else if (e.getActionCommand().equals("Export...")) {
 			exportDialog();
 		} else if (e.getActionCommand().equals("Remove all Tracks")) {
-			trackList.clear();
-			trackNames.clear();
+			int n = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all tracks?",
+					"Remove All Tracks", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (n == JOptionPane.OK_OPTION) {
+				trackList.clear();
+				trackNames.clear();
+			}
+		} else if (e.getActionCommand().equals("Build Addon...")) {
+			buildAddon();
 		}
 	}
 
@@ -285,7 +297,7 @@ public class Main implements ActionListener {
 							JOptionPane.ERROR_MESSAGE);
 				}
 				track.setDecibels(db.getValue());
-
+				trackNames.set(list.getSelectedIndex(), track.getTrackName());
 			}
 		}
 	};
@@ -375,6 +387,92 @@ public class Main implements ActionListener {
 
 	}
 
+	/**
+	 * Allows user to pack PBO file into mod folder structure after export is built
+	 * using Arma 3 Tools Addon Builder.
+	 * 
+	 * @throws IOException
+	 */
+	public static void buildAddon()  {
+		try {
+		// Get Addon PBO
+		String pboPath = "";
+		final JFileChooser fc = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("PBO files", "pbo");
+		fc.addChoosableFileFilter(filter);
+		fc.setFileFilter(filter);
+		fc.setAcceptAllFileFilterUsed(false);
+
+		int returnVal = fc.showOpenDialog(frmZeusMusicMod);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			pboPath = file.getAbsolutePath();
+		} else {
+			System.out.println("Open command cancelled by user.");
+			return;
+		}
+		
+		
+		// Create main mod folder
+		String projectNameRegex = "@" + projectName.replaceAll("\\W", "");
+		File mainDir = new File(projectNameRegex);
+		if (!mainDir.exists()) {
+			mainDir.mkdirs();
+		}
+
+		// Copy image PAA to main folder
+		File logo = (useDefaultLogo) ? getResourceAsFile("logo.paa") : new File(logoPath);
+		Files.copy(logo.toPath(), (new File(mainDir.getAbsolutePath() + "\\logo.paa")).toPath(),
+				StandardCopyOption.REPLACE_EXISTING);
+
+		// Copy default steamLogo.png to main folder
+		File steamLogo = getResourceAsFile("steamLogo.png");
+		Files.copy(steamLogo.toPath(), (new File(mainDir.getAbsolutePath() + "\\steamLogo.png")).toPath(),
+				StandardCopyOption.REPLACE_EXISTING);
+
+		// Create mod.cpp
+		Theme theme = new Theme();
+		Chunk chunk = theme.makeChunk("config", "txt");
+		chunk = theme.makeChunk("mod", "txt");
+
+		chunk.set("modName", projectName);
+		chunk.set("authorName", authorName.trim());
+
+		String outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
+		File file = new File(outfilePath);
+		FileWriter out = new FileWriter(file);
+		
+		outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
+		file = new File(outfilePath);
+		out = new FileWriter(file);
+
+		chunk.render(out);
+
+		out.flush();
+		out.close();
+
+		// Create addons folder
+		File addonDir = new File(projectNameRegex + "\\Addons");
+		if (!addonDir.exists()) {
+			addonDir.mkdirs();
+		}
+		
+		// Add PBO to addons folder
+		System.out.println(pboPath);
+		File source = new File(pboPath);
+		Files.copy(source.toPath(), (new File(addonDir.getAbsolutePath() + "\\MusicModPBO.pbo")).toPath(),StandardCopyOption.REPLACE_EXISTING);
+		JOptionPane.showMessageDialog(frmZeusMusicMod,
+			    "Addon built successfully to folder: " + projectNameRegex);
+		}catch(IOException ex) {
+			JOptionPane.showMessageDialog(frmZeusMusicMod,
+				    "There was an error building the addon.",
+				    "Addon Build Error",
+				    JOptionPane.ERROR_MESSAGE);
+		}
+		
+	}
+
 	public static void export(boolean useTags, boolean useDefaultLogo) throws IOException {
 		String projectNameRegex = projectName.replaceAll("\\W", "");
 
@@ -423,19 +521,88 @@ public class Main implements ActionListener {
 			trackDir.mkdirs();
 		}
 
+		// Copy all referenced tracks to destination track folder in main project folder
 		for (int i = 0; i < trackList.size(); i++) {
 			try {
 				File source = new File(trackList.get(i).getPath());
-				String tag = (useTags) ? trackList.get(i).getTag() : ""; // If 'useTags' checkbox was ticked, use file tag.
-				tag = (tag.equals("")) ? "" : "["+tag+"]";
+
 				Files.copy(source.toPath(),
-						(new File(trackDir.getAbsolutePath() + "/" + tag + trackList.get(i).getTrackName() + ".ogg").toPath()),
-						StandardCopyOption.REPLACE_EXISTING);
+						(new File(trackDir.getAbsolutePath() + "/" + trackList.get(i).getTrackName() + ".ogg")
+								.toPath()),
+						StandardCopyOption.REPLACE_EXISTING); // Copy song from source to target directory. If the song
+																// is already there, overwrite it.
 			} catch (IOException e) {
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(frmZeusMusicMod,
+						"An error occurred while copying songs to target directory. Ensure songs in list still exist in original paths.",
+						"Export Error", JOptionPane.ERROR_MESSAGE);
+				break;
 			}
 		}
 
+		// Copy image PAA to main folder
+		File logo = (useDefaultLogo) ? getResourceAsFile("logo.paa") : new File(logoPath);
+		Files.copy(logo.toPath(), (new File(mainDir.getAbsolutePath() + "\\logo.paa")).toPath(),
+				StandardCopyOption.REPLACE_EXISTING);
+
+		// Copy default steamLogo.png to main folder
+		File steamLogo = getResourceAsFile("steamLogo.png");
+		Files.copy(steamLogo.toPath(), (new File(mainDir.getAbsolutePath() + "\\steamLogo.png")).toPath(),
+				StandardCopyOption.REPLACE_EXISTING);
+
+		// Generate the fileListWithMusicTracks.hpp file
+		outfilePath = mainDir.getAbsolutePath() + "\\FileListWithMusicTracks.hpp";
+		file = new File(outfilePath);
+		out = new FileWriter(file);
+		for (int i = 0; i < trackList.size(); i++) {
+			String tag = (useTags) ? trackList.get(i).getTag() : ""; // If 'useTags' checkbox was ticked, use file tags.
+			tag = (tag.equals("")) ? "" : "[" + tag + "] "; // If no tag was provided, don't add the square brackets.
+
+			chunk = theme.makeChunk("FileListWithMusicTracks", "txt");
+			chunk.set("trackClass", "Song" + i);
+			chunk.set("trackName", tag + trackList.get(i).getTrackName());
+			chunk.set("trackPath",
+					projectNameRegex + "\\folderwithtracks\\" + trackList.get(i).getTrackName() + ".ogg");
+			chunk.set("decibels", trackList.get(i).getDecibels());
+			chunk.set("duration", trackList.get(i).getDuration());
+
+			chunk.render(out);
+
+		}
+
+		out.flush();
+		out.close();
+
 	}
 
+	/**
+	 * Method to retrieve resources packaged in JAR file.
+	 * 
+	 * @param resourcePath
+	 * @return
+	 */
+	public static File getResourceAsFile(String resourcePath) {
+		try {
+			InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(resourcePath);
+			if (in == null) {
+				return null;
+			}
+
+			File tempFile = File.createTempFile(String.valueOf(in.hashCode()), ".tmp");
+			tempFile.deleteOnExit();
+
+			try (FileOutputStream out = new FileOutputStream(tempFile)) {
+				// copy stream
+				byte[] buffer = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = in.read(buffer)) != -1) {
+					out.write(buffer, 0, bytesRead);
+				}
+			}
+			in.close();
+			return tempFile;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

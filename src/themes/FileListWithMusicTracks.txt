@@ -1,0 +1,7 @@
+class {$trackClass}
+{
+	name = "{$trackName}";
+	sound[] = {"{$trackPath}",db+{$decibels},1};
+	duration={$duration};
+	musicClass = "MyMusicClass";
+};

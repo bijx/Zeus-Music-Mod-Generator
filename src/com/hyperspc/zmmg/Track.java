@@ -1,9 +1,10 @@
 package com.hyperspc.zmmg;
 
+
 public class Track {
 
-	private String trackName, className, tag, path;
-	private int duration, decibels;
+	public String trackName, className, tag, path;
+	public int duration, decibels;
 	
 	public Track(String path, String trackName, String className, String tag, int duration, int decibels) {
 		this.path = path;
@@ -65,5 +66,7 @@ public class Track {
 	public String toString() {
 		return getTrackName();
 	}
+
+
 	
 }
