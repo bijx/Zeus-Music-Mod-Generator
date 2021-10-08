@@ -1,3 +1,11 @@
+/*
+ * * * * * * * * * * * * * * * * * * * * *  *
+ * A3 Zeus Music Mod Generator				*
+ * by bijx									*
+ * 											*
+ * http://zeusmissiongen.com/				*
+ * * * * * * * * * * * * * * * * * * * * *  *
+ */
 package com.hyperspc.zmmg;
 
 import java.awt.EventQueue;
@@ -19,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -45,17 +52,16 @@ import java.awt.Toolkit;
 public class Main implements ActionListener {
 
 	/* Project Setting & Variables */
-	private static String projectName = "New Music Mod", authorName = "Your username", mainCategory = projectName,
-			logoPath = "";
+	private static String projectName = "New Music Mod", authorName = "Your username", logoPath = "";
 	private static boolean useDefaultLogo = true;
 
-	private String className = "MyMusicClass"; // Hard-coded for now, will change in future to allow multiple custom
-												// music classes.
+	// private String className = "MyMusicClass"; //Hard-coded for now, will change
+	// in future to allow multiple custom music classes.
 
 	private static ArrayList<Track> trackList = new ArrayList<>();
-	private static DefaultListModel<String> trackNames = new DefaultListModel();
+	private static DefaultListModel<String> trackNames = new DefaultListModel<String>();
 
-	private static JList list;
+	private static JList<String> list;
 
 	private static JFrame frmZeusMusicMod;
 
@@ -168,7 +174,7 @@ public class Main implements ActionListener {
 		frmZeusMusicMod.getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(new GridLayout(1, 0, 0, 0));
 
-		list = new JList(trackNames);
+		list = new JList<String>(trackNames);
 		ListAction la = new ListAction(list, displayAction);
 		JScrollPane scrollPane = new JScrollPane(list);
 		panel.add(scrollPane);
@@ -189,6 +195,10 @@ public class Main implements ActionListener {
 
 	}
 
+	/**
+	 * ActionListener method that reacts to various UI events such as menu or button
+	 * clicks.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("General")) {
@@ -226,6 +236,9 @@ public class Main implements ActionListener {
 		}
 	}
 
+	/**
+	 * Method that shows export settings dialog prior to full export.
+	 */
 	public static void exportDialog() {
 		JCheckBox useTagsCheckbox = new JCheckBox("Append tags to track names");
 		useTagsCheckbox.setSelected(true);
@@ -254,6 +267,9 @@ public class Main implements ActionListener {
 		}
 	}
 
+	/**
+	 * ActionListener that listens for double clicks on JList.
+	 */
 	Action displayAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			JList list = (JList) e.getSource();
@@ -302,6 +318,10 @@ public class Main implements ActionListener {
 		}
 	};
 
+	/**
+	 * Method that removes currently selected song in the JList and updates the
+	 * list's DefaultModel.
+	 */
 	public static void removeSong() {
 		if (list.getSelectedIndex() != -1) {
 			trackList.remove(list.getSelectedIndex());
@@ -309,6 +329,9 @@ public class Main implements ActionListener {
 		}
 	}
 
+	/**
+	 * Add a song or multiple songs to the list via a FileChooser dialog.
+	 */
 	public static void addSong() {
 		final JFileChooser fc = new JFileChooser();
 		fc.setMultiSelectionEnabled(true);
@@ -333,6 +356,10 @@ public class Main implements ActionListener {
 		}
 	}
 
+	/**
+	 * Include a cover image in PAA format that is seen when the mod is selected in
+	 * both the launcher and in game.
+	 */
 	public static void addCoverImage() {
 		final JFileChooser fc = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("PAA files", "paa");
@@ -356,6 +383,10 @@ public class Main implements ActionListener {
 		}
 	}
 
+	/**
+	 * Opens the project settings dialog which allows user to make changes to
+	 * overall variables of the project.
+	 */
 	public static void showProjectSettings() {
 		JTextField modName = new JTextField(projectName);
 		modName.setToolTipText(
@@ -393,86 +424,92 @@ public class Main implements ActionListener {
 	 * 
 	 * @throws IOException
 	 */
-	public static void buildAddon()  {
+	public static void buildAddon() {
 		try {
-		// Get Addon PBO
-		String pboPath = "";
-		final JFileChooser fc = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("PBO files", "pbo");
-		fc.addChoosableFileFilter(filter);
-		fc.setFileFilter(filter);
-		fc.setAcceptAllFileFilterUsed(false);
+			// Get Addon PBO
+			String pboPath = "";
+			final JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("PBO files", "pbo");
+			fc.addChoosableFileFilter(filter);
+			fc.setFileFilter(filter);
+			fc.setAcceptAllFileFilterUsed(false);
 
-		int returnVal = fc.showOpenDialog(frmZeusMusicMod);
+			int returnVal = fc.showOpenDialog(frmZeusMusicMod);
 
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			pboPath = file.getAbsolutePath();
-		} else {
-			System.out.println("Open command cancelled by user.");
-			return;
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				pboPath = file.getAbsolutePath();
+			} else {
+				System.out.println("Open command cancelled by user.");
+				return;
+			}
+
+			// Create main mod folder
+			String projectNameRegex = "@" + projectName.replaceAll("\\W", "");
+			File mainDir = new File(projectNameRegex);
+			if (!mainDir.exists()) {
+				mainDir.mkdirs();
+			}
+
+			// Copy image PAA to main folder
+			File logo = (useDefaultLogo) ? getResourceAsFile("logo.paa") : new File(logoPath);
+			Files.copy(logo.toPath(), (new File(mainDir.getAbsolutePath() + "\\logo.paa")).toPath(),
+					StandardCopyOption.REPLACE_EXISTING);
+
+			// Copy default steamLogo.png to main folder
+			File steamLogo = getResourceAsFile("steamLogo.png");
+			Files.copy(steamLogo.toPath(), (new File(mainDir.getAbsolutePath() + "\\steamLogo.png")).toPath(),
+					StandardCopyOption.REPLACE_EXISTING);
+
+			// Create mod.cpp
+			Theme theme = new Theme();
+			Chunk chunk = theme.makeChunk("config", "txt");
+			chunk = theme.makeChunk("mod", "txt");
+
+			chunk.set("modName", projectName);
+			chunk.set("authorName", authorName.trim());
+
+			String outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
+			File file = new File(outfilePath);
+			FileWriter out = new FileWriter(file);
+
+			outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
+			file = new File(outfilePath);
+			out = new FileWriter(file);
+
+			chunk.render(out);
+
+			out.flush();
+			out.close();
+
+			// Create addons folder
+			File addonDir = new File(projectNameRegex + "\\Addons");
+			if (!addonDir.exists()) {
+				addonDir.mkdirs();
+			}
+
+			// Add PBO to addons folder
+			System.out.println(pboPath);
+			File source = new File(pboPath);
+			Files.copy(source.toPath(), (new File(addonDir.getAbsolutePath() + "\\MusicModPBO.pbo")).toPath(),
+					StandardCopyOption.REPLACE_EXISTING);
+			JOptionPane.showMessageDialog(frmZeusMusicMod, "Addon built successfully to folder: " + projectNameRegex);
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(frmZeusMusicMod, "There was an error building the addon.",
+					"Addon Build Error", JOptionPane.ERROR_MESSAGE);
 		}
-		
-		
-		// Create main mod folder
-		String projectNameRegex = "@" + projectName.replaceAll("\\W", "");
-		File mainDir = new File(projectNameRegex);
-		if (!mainDir.exists()) {
-			mainDir.mkdirs();
-		}
 
-		// Copy image PAA to main folder
-		File logo = (useDefaultLogo) ? getResourceAsFile("logo.paa") : new File(logoPath);
-		Files.copy(logo.toPath(), (new File(mainDir.getAbsolutePath() + "\\logo.paa")).toPath(),
-				StandardCopyOption.REPLACE_EXISTING);
-
-		// Copy default steamLogo.png to main folder
-		File steamLogo = getResourceAsFile("steamLogo.png");
-		Files.copy(steamLogo.toPath(), (new File(mainDir.getAbsolutePath() + "\\steamLogo.png")).toPath(),
-				StandardCopyOption.REPLACE_EXISTING);
-
-		// Create mod.cpp
-		Theme theme = new Theme();
-		Chunk chunk = theme.makeChunk("config", "txt");
-		chunk = theme.makeChunk("mod", "txt");
-
-		chunk.set("modName", projectName);
-		chunk.set("authorName", authorName.trim());
-
-		String outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
-		File file = new File(outfilePath);
-		FileWriter out = new FileWriter(file);
-		
-		outfilePath = mainDir.getAbsolutePath() + "\\mod.cpp";
-		file = new File(outfilePath);
-		out = new FileWriter(file);
-
-		chunk.render(out);
-
-		out.flush();
-		out.close();
-
-		// Create addons folder
-		File addonDir = new File(projectNameRegex + "\\Addons");
-		if (!addonDir.exists()) {
-			addonDir.mkdirs();
-		}
-		
-		// Add PBO to addons folder
-		System.out.println(pboPath);
-		File source = new File(pboPath);
-		Files.copy(source.toPath(), (new File(addonDir.getAbsolutePath() + "\\MusicModPBO.pbo")).toPath(),StandardCopyOption.REPLACE_EXISTING);
-		JOptionPane.showMessageDialog(frmZeusMusicMod,
-			    "Addon built successfully to folder: " + projectNameRegex);
-		}catch(IOException ex) {
-			JOptionPane.showMessageDialog(frmZeusMusicMod,
-				    "There was an error building the addon.",
-				    "Addon Build Error",
-				    JOptionPane.ERROR_MESSAGE);
-		}
-		
 	}
 
+	/**
+	 * Export method which combines all data collected during program use and
+	 * formats the final file structure of the mod before it is given to the A3Tools
+	 * Addon Builder.
+	 * 
+	 * @param useTags
+	 * @param useDefaultLogo
+	 * @throws IOException
+	 */
 	public static void export(boolean useTags, boolean useDefaultLogo) throws IOException {
 		String projectNameRegex = projectName.replaceAll("\\W", "");
 
@@ -541,6 +578,8 @@ public class Main implements ActionListener {
 
 		// Copy image PAA to main folder
 		File logo = (useDefaultLogo) ? getResourceAsFile("logo.paa") : new File(logoPath);
+		if(logo.getPath().equals(""))
+			logo = getResourceAsFile("logo.paa");
 		Files.copy(logo.toPath(), (new File(mainDir.getAbsolutePath() + "\\logo.paa")).toPath(),
 				StandardCopyOption.REPLACE_EXISTING);
 
@@ -562,7 +601,8 @@ public class Main implements ActionListener {
 			chunk.set("trackName", tag + trackList.get(i).getTrackName());
 			chunk.set("trackPath",
 					projectNameRegex + "\\folderwithtracks\\" + trackList.get(i).getTrackName() + ".ogg");
-			chunk.set("decibels", trackList.get(i).getDecibels());
+			chunk.set("decibels", (trackList.get(i).getDecibels() >= 0) ? "+" + trackList.get(i).getDecibels()
+					: trackList.get(i).getDecibels());
 			chunk.set("duration", trackList.get(i).getDuration());
 
 			chunk.render(out);
