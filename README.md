@@ -82,4 +82,5 @@ Finally, load the mod and start up Arma 3. Your music will be in the Zeus menu u
 
 ## Donate
 If you liked the project and want to show some appreciation, consider buying me a coffee!
+
 [![BuyMeACoffee](https://imgur.com/lOhOEdX.png)](https://www.buymeacoffee.com/bijx)
