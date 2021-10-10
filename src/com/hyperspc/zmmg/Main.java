@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -36,6 +37,10 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
 
 import com.x5.template.Chunk;
 import com.x5.template.Theme;
@@ -153,22 +158,23 @@ public class Main implements ActionListener {
 
 		JMenuItem songCountButton = new JMenuItem("Track Count");
 		songCountButton.addActionListener(this);
+
+		JMenuItem buildAddonButton = new JMenuItem("Build Addon...");
+		buildAddonButton.addActionListener(this);
+		mnNewMenu_1.add(buildAddonButton);
 		mnNewMenu_1.add(songCountButton);
 
 		JMenuItem removeAllTracksButton = new JMenuItem("Remove all Tracks");
 		removeAllTracksButton.addActionListener(this);
 		mnNewMenu_1.add(removeAllTracksButton);
-
-		JMenuItem buildAddonButton = new JMenuItem("Build Addon...");
-		buildAddonButton.addActionListener(this);
-		mnNewMenu_1.add(buildAddonButton);
 		mnNewMenu_1.add(mp3OggConvertButton);
 
 		JMenu mnNewMenu_2 = new JMenu("Help");
 		menuBar.add(mnNewMenu_2);
 
-		JMenuItem mntmNewMenuItem_4 = new JMenuItem("About");
-		mnNewMenu_2.add(mntmNewMenuItem_4);
+		JMenuItem aboutButton = new JMenuItem("About");
+		aboutButton.addActionListener(this);
+		mnNewMenu_2.add(aboutButton);
 
 		JPanel panel = new JPanel();
 		frmZeusMusicMod.getContentPane().add(panel, BorderLayout.CENTER);
@@ -233,8 +239,18 @@ public class Main implements ActionListener {
 			}
 		} else if (e.getActionCommand().equals("Build Addon...")) {
 			buildAddon();
+		} else if (e.getActionCommand().equals("About")) {
+			try {
+				java.awt.Desktop.getDesktop().browse(new URI("https://github.com/bijx/Zeus-Music-Mod-Generator"));
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(frmZeusMusicMod,
+						"Unable to open about webpage :( \nFind documentation on the GitHub project page: https://github.com/bijx/Zeus-Music-Mod-Generator",
+						"About Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
+
+	
 
 	/**
 	 * Method that shows export settings dialog prior to full export.
@@ -261,7 +277,6 @@ public class Main implements ActionListener {
 			try {
 				export(useTagsCheckbox.isSelected(), defaultLogoCheckbox.isSelected());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -348,6 +363,16 @@ public class Main implements ActionListener {
 			for (int i = 0; i < files.length; i++) {
 				Track newTrack = new Track(files[i].getAbsolutePath(),
 						files[i].getName().substring(0, files[i].getName().length() - 4), null, "", 0, 0);
+
+				// Get track duration
+				try {
+					AudioFile af = AudioFileIO.read(files[i]);
+					AudioHeader ah = af.getAudioHeader();
+					newTrack.setDuration(ah.getTrackLength());
+				} catch (Exception ex) {
+					System.out.println("There was an error reading duration data for " + newTrack.getTrackName());
+				}
+
 				trackList.add(newTrack);
 				trackNames.addElement(newTrack.getTrackName());
 			}
