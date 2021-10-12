@@ -13,6 +13,8 @@ Head over to the [Releases Page](https://github.com/bijx/Zeus-Music-Mod-Generato
 ## Usage
 Using the program to make a music mod is straightforward using the following guide.
 
+[VIDEO TUTORIAL](https://www.youtube.com/watch?v=Wmik02e1Arc&ab_channel=HYPERSPC)
+
 ### 1. Project Settings
 Set the general project settings by going to **File>Project Settings>General**.
 ![Project Settings](https://imgur.com/gWcuqMY.jpg)
