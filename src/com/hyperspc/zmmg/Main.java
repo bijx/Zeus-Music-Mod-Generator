@@ -60,8 +60,7 @@ public class Main implements ActionListener {
 	private static String projectName = "New Music Mod", authorName = "Your username", logoPath = "";
 	private static boolean useDefaultLogo = true;
 
-	// private String className = "MyMusicClass"; //Hard-coded for now, will change
-	// in future to allow multiple custom music classes.
+	private static String className = "MyMusicClass";
 
 	private static ArrayList<Track> trackList = new ArrayList<>();
 	private static DefaultListModel<String> trackNames = new DefaultListModel<String>();
@@ -305,6 +304,7 @@ public class Main implements ActionListener {
 				tag.setToolTipText("Will appear in front of the track name: [Tag] Track Name");
 				JTextField durationField = new JTextField("" + track.getDuration());
 				durationField.setToolTipText("Track duration in seconds. Will appear next to track name in game.");
+				
 				JPanel panel = new JPanel(new GridLayout(0, 1));
 				panel.add(new JLabel("Track Name:"));
 				panel.add(trackName);
@@ -314,7 +314,6 @@ public class Main implements ActionListener {
 				panel.add(durationField);
 				panel.add(new JLabel("Decibels (dB):"));
 				panel.add(db);
-
 				int result = JOptionPane.showConfirmDialog(null, panel, "Metadata Editor", JOptionPane.DEFAULT_OPTION,
 						JOptionPane.PLAIN_MESSAGE);
 
@@ -362,7 +361,7 @@ public class Main implements ActionListener {
 
 			for (int i = 0; i < files.length; i++) {
 				Track newTrack = new Track(files[i].getAbsolutePath(),
-						files[i].getName().substring(0, files[i].getName().length() - 4), null, "", 0, 0);
+						files[i].getName().substring(0, files[i].getName().length() - 4), className, "", 0, 0);
 
 				// Get track duration
 				try {
@@ -440,6 +439,7 @@ public class Main implements ActionListener {
 		projectName = modName.getText();
 		authorName = author.getText();
 		useDefaultLogo = defaultLogoCheckbox.isSelected();
+		className = projectName.replaceAll("\\W", "").replaceAll("\\d", "");
 
 	}
 
@@ -552,6 +552,7 @@ public class Main implements ActionListener {
 		chunk.set("modNameNoSpaces", projectNameRegex);
 		chunk.set("modName", projectName);
 		chunk.set("authorName", authorName.trim()); // Removes trailing or leading whitespace too
+		chunk.set("className", className);
 
 		String outfilePath = mainDir.getAbsolutePath() + "\\config.cpp";
 		File file = new File(outfilePath);
@@ -629,6 +630,7 @@ public class Main implements ActionListener {
 			chunk.set("decibels", (trackList.get(i).getDecibels() >= 0) ? "+" + trackList.get(i).getDecibels()
 					: trackList.get(i).getDecibels());
 			chunk.set("duration", trackList.get(i).getDuration());
+			chunk.set("className",className);
 
 			chunk.render(out);
 

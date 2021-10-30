@@ -17,7 +17,7 @@ class CfgMusic
 };
 class CfgMusicClasses
 {
-	class MyMusicClass
+	class {$className}
 	{
 		displayName = "{$modName}";
 	};
