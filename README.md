@@ -13,6 +13,8 @@ Head over to the [Releases Page](https://github.com/bijx/Zeus-Music-Mod-Generato
 ## Usage
 Using the program to make a music mod is straightforward using the following guide.
 
+[VIDEO TUTORIAL](https://www.youtube.com/watch?v=Wmik02e1Arc&ab_channel=HYPERSPC)
+
 ### 1. Project Settings
 Set the general project settings by going to **File>Project Settings>General**.
 ![Project Settings](https://imgur.com/gWcuqMY.jpg)
@@ -33,7 +35,7 @@ Double click a track in the list to open the **Metadata Editor** where attribute
 ![Metadata Editor](https://imgur.com/2nhAyM6.jpg)
 - **Track Name:** The name of the song that will be visible in game.
 - **Tag:** A short optional descriptor that ideally goes before the name to describe what the track is about. Example: Setting the tag to be "SFX" on a C-130 Flyby track will be displayed as **[SFX] C-130 Flyby** in-game.
-- **Duration:** The song length in seconds. Doesn't need to be correct for songs to work, but is nice to have. *Will be automated in the future!*
+- **Duration:** The song length in seconds. Doesn't need to be correct for songs to work, but is nice to have. *Auto song length retrieval has now been implemented in v1.1.4a.*
 
 ### 4. Export
 Once you're ready to export the basic mod file structure, go to **File>Export...**. This will bring up the Export Settings where you have two options.
@@ -76,7 +78,7 @@ Finally, load the mod and start up Arma 3. Your music will be in the Zeus menu u
 - [tomj74's Chunk-Template Library](https://github.com/tomj74/chunk-templates)
 - [Rob Camick's ListAction class](https://tips4java.wordpress.com/2008/10/14/list-action/)
 - [Scarlet Aquiline's Custom music packs for Zeus module](https://steamcommunity.com/sharedfiles/filedetails/?id=1603895838)
-
+- [JThink's JAudioTagger Library](http://www.jthink.net/jaudiotagger/)
 ## License
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
