@@ -623,7 +623,7 @@ public class Main implements ActionListener {
 			tag = (tag.equals("")) ? "" : "[" + tag + "] "; // If no tag was provided, don't add the square brackets.
 
 			chunk = theme.makeChunk("FileListWithMusicTracks", "txt");
-			chunk.set("trackClass", "Song" + i);
+			chunk.set("trackClass", className + "Song" + i);
 			chunk.set("trackName", tag + trackList.get(i).getTrackName());
 			chunk.set("trackPath",
 					projectNameRegex + "\\folderwithtracks\\" + trackList.get(i).getTrackName() + ".ogg");
